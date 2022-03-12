@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -20,7 +21,6 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.PhoneAuthCredential;
-import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
 
 import java.util.concurrent.TimeUnit;
@@ -29,6 +29,7 @@ public class Verify_Number extends AppCompatActivity {
     private String mVerificationId;
     private PinView enterOTP;
     private FirebaseAuth mAuth;
+    TextView mnumberdisplay, medit;
     Button LoginPhone;
 
     @Override
@@ -38,9 +39,21 @@ public class Verify_Number extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         enterOTP = findViewById(R.id.enterOTP);
         LoginPhone = findViewById(R.id.LoginPhone);
+        mnumberdisplay = findViewById(R.id.numberdisplay);
+        medit = findViewById(R.id.edit);
         Intent intent = getIntent();
         String mobile = intent.getStringExtra("mobile");
         sendVerificationCode(mobile);
+
+        mnumberdisplay.setText("+91"+mobile);
+        medit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getApplicationContext(), Login_Phone.class));
+                finish();
+            }
+        });
+
 
         enterOTP.requestFocus();
         InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -62,23 +75,14 @@ public class Verify_Number extends AppCompatActivity {
     }
     private void sendVerificationCode(String mobile) {
 
-        PhoneAuthOptions options =
-                PhoneAuthOptions.newBuilder(mAuth)
-                        .setPhoneNumber("+91"+mobile)       // Phone number to verify
-                        .setTimeout(60L, TimeUnit.SECONDS) // Timeout and unit
-                        .setActivity(this)                 // Activity (for callback binding)
-                        .setCallbacks(mCallbacks)          // OnVerificationStateChangedCallbacks
-                        .build();
-        PhoneAuthProvider.verifyPhoneNumber(options);
-
-//        PhoneAuthProvider.getInstance().verifyPhoneNumber(
-//                "+91"+mobile,
-//                60,
-//                TimeUnit.SECONDS,
-//                this,
-//                mCallbacks);
+        PhoneAuthProvider.getInstance().verifyPhoneNumber(
+                "+91"+mobile,
+                60,
+                TimeUnit.SECONDS,
+                this,
+                mCallbacks);
     }
-    private final PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks =
+    private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks =
             new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
                 @Override
                 public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential) {
@@ -112,7 +116,7 @@ public class Verify_Number extends AppCompatActivity {
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
                     //verification successful we will start the profile activity
-                    Intent intent = new Intent(Verify_Number.this, SelectLocationFromMap.class);
+                    Intent intent = new Intent(Verify_Number.this, MainActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);
 
