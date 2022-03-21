@@ -14,10 +14,13 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -31,6 +34,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.location.SleepClassifyEvent;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -39,6 +44,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.HashMap;
 
@@ -107,9 +113,6 @@ public class FormFillupActivity extends AppCompatActivity implements NavigationV
         dropdown = findViewById(R.id.dropDrown);
 
 
-
-
-
         // All Material CardView
         card1 = findViewById(R.id.card1);
         card2 = findViewById(R.id.card2);
@@ -139,6 +142,32 @@ public class FormFillupActivity extends AppCompatActivity implements NavigationV
 
         fAuth = FirebaseAuth.getInstance();
         fdata = FirebaseDatabase.getInstance();
+
+
+//      Notification
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            NotificationChannel channel = new NotificationChannel("MyNotifications", "MyNotifications", NotificationManager.IMPORTANCE_DEFAULT);
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            manager.createNotificationChannel(channel);
+        }
+        FirebaseMessaging.getInstance().subscribeToTopic("general")
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        String msg = "Successful";
+                        if(!task.isSuccessful())
+                            msg = "Failed";
+                        Toast.makeText(FormFillupActivity.this, msg, Toast.LENGTH_SHORT);
+                    }
+//                    @Override
+//                    public void onComplete(@NonNull Task<Void> task) {
+//                        String msg = getString(R.string.msg_subscribed);
+//                        if (!task.isSuccessful()) {
+//                            msg = getString(R.string.msg_subscribe_failed);
+//                        }
+//                        Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+//                    }
+                });
 
 
         dropdown.setOnClickListener(new View.OnClickListener() {
