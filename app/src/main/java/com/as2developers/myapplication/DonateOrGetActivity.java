@@ -40,6 +40,7 @@ public class DonateOrGetActivity extends AppCompatActivity {
     ArrayList<String> PhoneNumber = new ArrayList<String>();
     ArrayList<String> Latitude = new ArrayList<String>();
     ArrayList<String> Longitude = new ArrayList<String>();
+    ArrayList<String> iscomplete = new ArrayList<String>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +67,22 @@ public class DonateOrGetActivity extends AppCompatActivity {
                 UserModal user01 = snapshot.getValue(UserModal.class);
                 String username = user01.getName();
                 userName.setText(username);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+        DatabaseReference refcomp = fdata.getReference("OrderId").child("IsComplete");
+        refcomp.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for(DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                    String data = dataSnapshot.getValue(String.class);
+                    iscomplete.add(data);
+                }
             }
 
             @Override
@@ -199,6 +216,10 @@ public class DonateOrGetActivity extends AppCompatActivity {
                 Lat = intent.getStringExtra("Latitude");
                 locality = intent.getStringExtra("locality");
                 longAddress = intent.getStringExtra("longAddress");
+
+                iscomplete.add("False");
+                DatabaseReference refcomp2 = fdata.getReference("OrderId").child("IsComplete");
+                refcomp2.setValue(iscomplete);
 
                 ItemType.add(Items);
                 DatabaseReference refitems2 = fdata.getReference("OrderId").child("Items");
